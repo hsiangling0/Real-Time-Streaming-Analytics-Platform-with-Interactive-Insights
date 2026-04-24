@@ -11,8 +11,8 @@ import {
 
 export default function Chart({ dataset }) {
   const [data, setData] = useState([]);
-  const formatTick=getTimeFormatter(data);
-  const datasetId=dataset?.id;
+  const formatTick = getTimeFormatter(data);
+  const datasetId = dataset?.id;
   useEffect(() => {
     if (!datasetId) return;
 
@@ -41,7 +41,7 @@ export default function Chart({ dataset }) {
   function getTimeFormatter(data) {
     // no data → fallback
     if (!data || data.length < 2) {
-        return (v) => v;
+      return (v) => v;
     }
 
     const first = data[0]?.rawX;
@@ -49,32 +49,30 @@ export default function Chart({ dataset }) {
 
     // not a date → return identity
     if (isNaN(Date.parse(first)) || isNaN(Date.parse(last))) {
-        return (v) => v;
+      return (v) => v;
     }
 
     const diffMs = new Date(last) - new Date(first);
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
     if (diffDays > 7) {
-        return (v) => new Date(v).toLocaleDateString();
+      return (v) => new Date(v).toLocaleDateString();
     } else if (diffDays > 1) {
-        return (v) => new Date(v).toLocaleString();
+      return (v) => new Date(v).toLocaleString();
     } else {
-        return (v) => new Date(v).toLocaleTimeString();
+      return (v) => new Date(v).toLocaleTimeString();
+    }
   }
-}
 
   return (
     <div className="w-full h-full">
-      <div className="text-sm font-medium mb-2">
-        {dataset?.name}
-      </div>
+      <div className="text-sm font-medium mb-2">{dataset?.name}</div>
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
 
-          <XAxis dataKey="rawX" tickFormatter={formatTick} minTickGap={20}/>
+          <XAxis dataKey="rawX" tickFormatter={formatTick} minTickGap={20} />
 
           <YAxis />
 

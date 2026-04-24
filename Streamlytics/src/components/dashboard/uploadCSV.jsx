@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function UploadCSV({ onSuccess }) {
-  const [open, setOpen] =useState(false);
+  const [open, setOpen] = useState(false);
   const [file, setFile] = useState(null);
   const [filePath, setFilePath] = useState("");
 
@@ -20,7 +20,7 @@ export default function UploadCSV({ onSuccess }) {
   const [xLabel, setXLabel] = useState("");
   const [yLabel, setYLabel] = useState("");
 
-  const token=localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   const handleUpload = async () => {
     if (!file) return alert("Please upload a file");
@@ -28,7 +28,7 @@ export default function UploadCSV({ onSuccess }) {
     formData.append("file", file);
 
     try {
-      const res=await fetch("http://localhost:8000/upload", {
+      const res = await fetch("http://localhost:8000/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -40,7 +40,6 @@ export default function UploadCSV({ onSuccess }) {
       setColumns(data.columns);
       setNumericCols(data.numeric_columns);
       setPreview(data.preview);
-
     } catch (err) {
       console.error(err);
     }
@@ -49,7 +48,7 @@ export default function UploadCSV({ onSuccess }) {
     if (!xLabel || !yLabel) {
       return alert("Please select X and Y columns");
     }
-    
+
     try {
       await fetch("http://localhost:8000/ingest", {
         method: "POST",
@@ -61,7 +60,7 @@ export default function UploadCSV({ onSuccess }) {
           event_type: "custom_data",
           data: {
             file_path: filePath,
-            nickname:file.name,
+            nickname: file.name,
             x_label: xLabel,
             y_label: yLabel,
           },
@@ -100,9 +99,7 @@ export default function UploadCSV({ onSuccess }) {
                 onChange={(e) => setFile(e.target.files[0])}
               />
 
-              <Button onClick={handleUpload}>
-                Upload & Preview
-              </Button>
+              <Button onClick={handleUpload}>Upload & Preview</Button>
             </>
           )}
 
@@ -160,9 +157,7 @@ export default function UploadCSV({ onSuccess }) {
                 </select>
               </div>
 
-              <Button onClick={handleSubmit}>
-                Start Streaming
-              </Button>
+              <Button onClick={handleSubmit}>Start Streaming</Button>
             </>
           )}
         </div>

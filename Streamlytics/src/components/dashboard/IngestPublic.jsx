@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function IngestPublic({ onSuccess }) {
-  const [open, setOpen] =useState(false);
+  const [open, setOpen] = useState(false);
   const [symbol, setSymbol] = useState("");
   const [source, setSource] = useState("yfinance");
 
@@ -32,7 +32,6 @@ export default function IngestPublic({ onSuccess }) {
       });
       setOpen(false);
       onSuccess?.();
-
     } catch (err) {
       console.error(err);
     }
@@ -51,7 +50,7 @@ export default function IngestPublic({ onSuccess }) {
 
         <div className="flex flex-col gap-4">
           <Input
-          className="mt-[5px]"
+            className="mt-[5px]"
             placeholder="Symbol (e.g. AAPL, bitcoin)"
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
@@ -66,7 +65,9 @@ export default function IngestPublic({ onSuccess }) {
             <option value="coingecko">CoinGecko (crypto)</option>
           </select>
 
-          <Button onClick={handleSubmit} className="mt-[20px]">Start Streaming</Button>
+          <Button onClick={handleSubmit} className="mt-[20px]">
+            Start Streaming
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

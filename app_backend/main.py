@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 import logging, os, uuid
 import asyncio
 import pandas as pd
-from app_backend.models.schemas import EventSchema
+import json
+from app_backend.models.schemas import EventSchema, AnalyzeRequest
 from app_backend.redis.redis_client import redis_conn
 from app_backend.core.jwt import get_current_user
 from app_backend.db.database import create_dataset
@@ -19,9 +20,7 @@ frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 app = FastAPI(title="Event Ingestion API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        frontend_url,
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -93,6 +92,25 @@ async def ingest(event: EventSchema, user=Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+@app.post("/analyze")
+async def analyze(request: AnalyzeRequest, user=Depends(get_current_user)):
+    try:
+        job_id = str(uuid.uuid4())
+        payload = {
+            "type": "analysis",
+            "job_id": job_id,
+            "dataset_ids": json.dumps(request.dataset_ids),
+            "question": request.question,
+            "org_id": user["org_id"]
+        }
+        print(job_id)
+        redis_conn.xadd("stream:analysis", payload)
+        return {"status": "queued", "job_id": job_id}
+    except Exception as e:
+        logger.error(f"Analysis error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 # /datalist
 app.include_router(datalist_router)
 
@@ -123,3 +141,26 @@ async def websocket_endpoint(websocket: WebSocket, dataset_id: int):
 
     except WebSocketDisconnect:
         print(f"[WS DISCONNECT] {dataset_id}")
+
+
+@app.websocket("/ws/analysis/{job_id}")
+async def analysis_ws(websocket: WebSocket, job_id: str):
+    await websocket.accept()
+
+    last_id = "0-0"
+    try:
+        while True:
+            response = await asyncio.to_thread(redis_conn.xread,
+                                               {f"stream:analysis_result:{job_id}": last_id}, 10,
+                                               5000)
+
+            if not response:
+                continue
+
+            for _, messages in response:
+                for message_id, data in messages:
+                    last_id = message_id
+
+                    await websocket.send_json({"result": data.get("result")})
+    except WebSocketDisconnect:
+        print(f"[WS DISCONNECT] {job_id}")

@@ -1,13 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
-
-export default function DataList({data, onChange}) {
-    const [activeItems, setActiveItems] = useState([]);
-
+export default function DataList({ data, activeItems, onChange }) {
   const toggle = (item) => {
     let updated;
-
     const exists = activeItems.find((i) => i.id === item.id);
 
     if (exists) {
@@ -16,8 +11,7 @@ export default function DataList({data, onChange}) {
       updated = [...activeItems, item];
     }
 
-    setActiveItems(updated);
-    onChange(updated); // ✅ send FULL objects, not just IDs
+    onChange(updated);
   };
 
   const isActive = (id) => {
@@ -26,17 +20,12 @@ export default function DataList({data, onChange}) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Header */}
       <div className="font-semibold">Data Streams</div>
 
-      {/* Empty state */}
       {data.length === 0 && (
-        <div className="text-xs text-muted-foreground">
-          No datasets yet
-        </div>
+        <div className="text-xs text-muted-foreground">No datasets yet</div>
       )}
 
-      {/* List */}
       {data.map((item) => {
         const active = isActive(item.id);
 
@@ -47,18 +36,14 @@ export default function DataList({data, onChange}) {
               ${active ? "bg-muted/50 border-primary" : "bg-white"}
             `}
           >
-            {/* Left info */}
             <div className="flex flex-col">
-              <div className="text-sm font-medium">
-                {item.name}
-              </div>
+              <div className="text-sm font-medium">{item.name}</div>
 
               <div className="text-xs text-muted-foreground">
                 {item.type} • {item.source}
               </div>
             </div>
 
-            {/* Toggle */}
             <Button
               size="sm"
               variant={active ? "default" : "outline"}

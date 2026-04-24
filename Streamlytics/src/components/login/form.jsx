@@ -19,13 +19,11 @@ export function LoginForm() {
       onSubmit={handleLogin}
       className="flex flex-col gap-5 rounded-xl border p-6 shadow-sm bg-white/80 backdrop-blur"
     >
-      {/* Title */}
       <div className="text-center">
         <h1 className="text-2xl font-bold">Streamlytics</h1>
         <p className="text-sm text-gray-500">Real-time data platform</p>
       </div>
 
-      {/* Email */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Account</label>
         <Input
@@ -36,7 +34,6 @@ export function LoginForm() {
         />
       </div>
 
-      {/* Password */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">Password</label>
         <Input
@@ -47,7 +44,6 @@ export function LoginForm() {
         />
       </div>
 
-      {/* Button */}
       <Button type="submit" className="w-full">
         Login
       </Button>
