@@ -4,7 +4,10 @@ import { IconChartBar, IconDashboard, IconSettings } from "@tabler/icons-react";
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
   const isActive = (path) => location.pathname === path;
   return (
     <div className="w-16 lg:w-64 border-r bg-white flex flex-col">
@@ -36,8 +39,14 @@ export default function Sidebar() {
       </div>
 
       <div className="mt-auto p-3 text-xs text-muted-foreground">
-        <div>Org: demo_org</div>
-        <div>User: Sylvia</div>
+        <div className="text-xs text-muted-foreground mb-2">Org: demo_org</div>
+
+        <div className="text-xs text-muted-foreground mb-3">User: Sylvia</div>
+
+        {/* Logout Button */}
+        <Button variant="destructive" className="w-full" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
     </div>
   );

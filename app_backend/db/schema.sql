@@ -4,9 +4,11 @@ CREATE TABLE organizations (
 );
 
 CREATE TABLE users (
-  id TEXT PRIMARY KEY,
-  org_id TEXT REFERENCES organizations(id),
-  account TEXT
+    id SERIAL PRIMARY KEY,
+    account VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    org_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE datasets (
@@ -16,4 +18,12 @@ CREATE TABLE datasets (
   type TEXT,
   source TEXT,
   created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE analysis_results (
+    id SERIAL PRIMARY KEY,
+    dataset_ids JSONB,
+    question TEXT,
+    result TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

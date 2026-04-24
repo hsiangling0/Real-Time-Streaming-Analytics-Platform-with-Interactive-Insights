@@ -7,7 +7,9 @@ import logging, os, uuid
 import asyncio
 import pandas as pd
 import json
-from app_backend.models.schemas import EventSchema, AnalyzeRequest
+from app_backend.db.database import get_conn
+from app_backend.core.jwt import hash_password, verify_password, create_access_token
+from app_backend.models.schemas import EventSchema, AnalyzeRequest, RegisterRequest, LoginRequest
 from app_backend.redis.redis_client import redis_conn
 from app_backend.core.jwt import get_current_user
 from app_backend.db.database import create_dataset
@@ -33,6 +35,65 @@ BASE_STORAGE = os.getenv("BASE_STORAGE", "uploads")
 @app.get("/")
 def read_root():
     return {"status": "Ingestion API"}
+
+
+@app.post("/register")
+def register(req: RegisterRequest):
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM users WHERE account=%s", (req.account, ))
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="Account already exists")
+        hashed = hash_password(req.password)
+
+        cur.execute(
+            """
+        INSERT INTO users (account, password_hash, org_id)
+        VALUES (%s, %s, %s)
+        RETURNING id
+        """,
+            (req.account, hashed, req.org_id),
+        )
+
+        user_id = cur.fetchone()[0]
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        token = create_access_token({"user_id": user_id, "org_id": req.org_id})
+
+        return {"access_token": token}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/login")
+def login(req: LoginRequest):
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        cur.execute("SELECT id, password_hash, org_id FROM users WHERE account=%s", (req.account, ))
+        user = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        user_id, password_hash, org_id = user
+
+        if not verify_password(req.password, password_hash):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        token = create_access_token({"user_id": user_id, "org_id": org_id})
+
+        return {"access_token": token}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/upload")

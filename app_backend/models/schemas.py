@@ -23,3 +23,14 @@ class EventSchema(BaseModel):
 class AnalyzeRequest(BaseModel):
     dataset_ids: list[int]
     question: str
+
+
+class RegisterRequest(BaseModel):
+    account: str
+    password: str
+    org_id: str
+
+
+class LoginRequest(BaseModel):
+    account: str
+    password: str

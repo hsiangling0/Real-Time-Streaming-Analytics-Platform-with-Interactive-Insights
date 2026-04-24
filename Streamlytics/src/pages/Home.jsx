@@ -3,10 +3,10 @@ import Sidebar from "@/components/home/sidebar";
 import Header from "@/components/home/header";
 import { useEffect, useState } from "react";
 
-localStorage.setItem(
-  "token",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfaWQiOiJ0ZXN0X29yZyJ9.SheepxG9aQfMtH4lQss1GXvKaKnMQu8VGHk7pJXzlLY",
-);
+// localStorage.setItem(
+//   "token",
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfaWQiOiJ0ZXN0X29yZyJ9.SheepxG9aQfMtH4lQss1GXvKaKnMQu8VGHk7pJXzlLY",
+// );
 export default function Home() {
   const [datalist, setDataList] = useState([]);
   const [activeDatasets, setActiveDatasets] = useState(() => {

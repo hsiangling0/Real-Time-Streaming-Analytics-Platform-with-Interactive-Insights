@@ -3,50 +3,99 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
+  const [mode, setMode] = useState("login"); // login | register
+
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
+  const [orgId, setOrgId] = useState("");
 
-  const handleLogin = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Login:", { account, password });
+    const url =
+      mode === "login"
+        ? "http://localhost:8000/login"
+        : "http://localhost:8000/register";
 
-    // TODO: replace with JWT logic later
+    const body =
+      mode === "login"
+        ? { account, password }
+        : { account, password, org_id: orgId };
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+
+    if (data.access_token) {
+      localStorage.setItem("token", data.access_token);
+      window.location.href = "/";
+    } else {
+      alert(data.detail || "Auth failed");
+    }
   };
 
   return (
     <form
-      onSubmit={handleLogin}
-      className="flex flex-col gap-5 rounded-xl border p-6 shadow-sm bg-white/80 backdrop-blur"
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 rounded-xl border p-6 bg-white/80 backdrop-blur"
     >
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Streamlytics</h1>
-        <p className="text-sm text-gray-500">Real-time data platform</p>
-      </div>
+      <h1 className="text-2xl font-bold text-center">Streamlytics</h1>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Account</label>
+      <Input
+        placeholder="Account"
+        value={account}
+        onChange={(e) => setAccount(e.target.value)}
+      />
+
+      <Input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      {/* ONLY for register */}
+      {mode === "register" && (
         <Input
-          type="account"
-          value={account}
-          onChange={(e) => setAccount(e.target.value)}
-          required
+          placeholder="Org ID"
+          value={orgId}
+          onChange={(e) => setOrgId(e.target.value)}
         />
-      </div>
+      )}
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Password</label>
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-
-      <Button type="submit" className="w-full">
-        Login
+      <Button type="submit">
+        {mode === "login" ? "Login" : "Create Account"}
       </Button>
+
+      <div className="text-sm text-center text-muted-foreground">
+        {mode === "login" ? (
+          <>
+            No account?{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => setMode("register")}
+            >
+              Register
+            </button>
+          </>
+        ) : (
+          <>
+            Already have an account?{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => setMode("login")}
+            >
+              Login
+            </button>
+          </>
+        )}
+      </div>
     </form>
   );
 }
