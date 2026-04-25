@@ -1,0 +1,26 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/streamlytics-494320/streamlytics/api-service",
+        "-f",
+        "backend/Dockerfile.api",
+        "backend",
+      ]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/streamlytics-494320/streamlytics/worker-service",
+        "-f",
+        "backend/Dockerfile.worker",
+        "backend",
+      ]
+
+images:
+  - "us-central1-docker.pkg.dev/streamlytics-494320/streamlytics/api-service"
+  - "us-central1-docker.pkg.dev/streamlytics-494320/streamlytics/worker-service"
