@@ -209,3 +209,4 @@ final/
 Streamlytics/node_modules/
 Streamlytics/dist/
 uploads/
+dump.rdb

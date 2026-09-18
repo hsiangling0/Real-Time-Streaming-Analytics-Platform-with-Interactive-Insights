@@ -1,8 +1,10 @@
+from dotenv import load_dotenv
+
+load_dotenv()
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi import UploadFile, File
-from dotenv import load_dotenv
 import logging, os, uuid
 import asyncio
 import pandas as pd
@@ -14,8 +16,6 @@ from app_backend.redis.redis_client import redis_conn
 from app_backend.core.jwt import get_current_user
 from app_backend.db.database import create_dataset
 from app_backend.api.routes.dataset import router as datalist_router
-
-load_dotenv()
 
 logger = logging.getLogger(__name__)
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
