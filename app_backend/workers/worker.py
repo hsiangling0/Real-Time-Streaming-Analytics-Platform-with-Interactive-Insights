@@ -64,8 +64,8 @@ def process_private_event(data, org_id, dataset_id):
             stream_key, {
                 "org_id": org_id,
                 "event_type": "custom_data",
-                "x": row[x_label],
-                "y": row[y_label],
+                "x": row[x_label].item() if hasattr(row[x_label], "item") else row[x_label],
+                "y": row[y_label].item() if hasattr(row[y_label], "item") else row[y_label],
                 "timestamp": time.time(),
             })
         time.sleep(0.01)
