@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { API_BASE_URL } from "@/lib/api";
 
 export function LoginForm() {
   const [mode, setMode] = useState("login"); // login | register
@@ -12,11 +13,10 @@ export function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url =
-      mode === "login"
-        ? "http://localhost:8000/login"
-        : "http://localhost:8000/register";
-
+    const url = mode === "login"
+    ? `${API_BASE_URL}/login`
+    : `${API_BASE_URL}/register`;
+    
     const body =
       mode === "login"
         ? { account, password }

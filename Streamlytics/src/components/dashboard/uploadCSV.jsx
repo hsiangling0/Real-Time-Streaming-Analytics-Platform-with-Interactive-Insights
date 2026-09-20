@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,7 @@ export default function UploadCSV({ onSuccess }) {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:8000/upload", {
+      const res = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,7 +51,7 @@ export default function UploadCSV({ onSuccess }) {
     }
 
     try {
-      await fetch("http://localhost:8000/ingest", {
+      await fetch(`${API_BASE_URL}/ingest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

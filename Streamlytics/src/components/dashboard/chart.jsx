@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { WS_BASE_URL } from "@/lib/api";
 import {
   LineChart,
   Line,
@@ -16,7 +17,7 @@ export default function Chart({ dataset }) {
   useEffect(() => {
     if (!datasetId) return;
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/${datasetId}`);
+    const ws = new WebSocket(`${WS_BASE_URL}/ws/${datasetId}`);
 
     ws.onopen = () => console.log("WS OPEN", datasetId);
     ws.onclose = () => console.log("WS CLOSED", datasetId);
@@ -35,7 +36,7 @@ export default function Chart({ dataset }) {
     };
 
     return () => ws.close();
-  }, [dataset]);
+  }, [datasetId]);
 
   // ✅ detect + format X axis
   function getTimeFormatter(data) {

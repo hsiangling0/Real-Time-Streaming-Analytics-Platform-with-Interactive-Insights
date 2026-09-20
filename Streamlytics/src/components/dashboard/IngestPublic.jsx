@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,7 @@ export default function IngestPublic({ onSuccess }) {
 
   const handleSubmit = async () => {
     try {
-      await fetch("http://localhost:8000/ingest", {
+      await fetch(`${API_BASE_URL}/ingest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
