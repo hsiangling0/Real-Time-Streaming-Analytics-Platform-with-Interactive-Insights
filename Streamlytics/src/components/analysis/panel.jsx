@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL, WS_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -15,7 +16,7 @@ export default function AnalysisPanel({ datasets }) {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/analyze", {
+      const res = await fetch(`${API_BASE_URL}/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -29,7 +30,7 @@ export default function AnalysisPanel({ datasets }) {
 
       const data = await res.json();
       const job_id=data.job_id;
-      const ws = new WebSocket(`ws://localhost:8000/ws/analysis/${job_id}`);
+      const ws = new WebSocket(`${WS_BASE_URL}/ws/analysis/${job_id}`);
       ws.onmessage = (event) => {
         const msg = JSON.parse(event.data);
         setResult(msg.result);

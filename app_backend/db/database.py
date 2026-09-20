@@ -3,6 +3,16 @@ import os
 
 
 def get_conn():
+    cloud_sql_conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
+
+    if cloud_sql_conn_name:
+        return psycopg2.connect(
+            dbname=os.getenv("POSTGRES_DB", "streaming_db"),
+            user=os.getenv("POSTGRES_USER", "postgres"),
+            password=os.getenv("POSTGRES_PASSWORD"),
+            host=f"/cloudsql/{cloud_sql_conn_name}",
+        )
+
     return psycopg2.connect(
         dbname=os.getenv("POSTGRES_DB", "streaming_db"),
         user=os.getenv("POSTGRES_USER", "postgres"),

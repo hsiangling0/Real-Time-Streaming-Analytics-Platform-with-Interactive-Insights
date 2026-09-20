@@ -1,4 +1,4 @@
-import time, os
+import time, os, io
 import socket
 import json
 import pandas as pd
@@ -57,7 +57,18 @@ def process_private_event(data, org_id, dataset_id):
         raise ValueError("file_path missing")
     x_label = data.get("x_label")
     y_label = data.get("y_label")
-    df = pd.read_csv(file_path)
+    if file_path.startswith("gs://"):
+        from google.cloud import storage
+        client = storage.Client()
+        _, _, rest = file_path.partition("gs://")
+        bucket_name, _, blob_path = rest.partition("/")
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(blob_path)
+        content = blob.download_as_bytes()
+        df = pd.read_csv(io.BytesIO(content))
+    else:
+        df = pd.read_csv(file_path)
+
     stream_key = f"stream:{dataset_id}"
     for _, row in df.iterrows():
         redis_conn.xadd(
@@ -206,7 +217,7 @@ def process_analysis_event(message_id, data):
     result = call_gemini(prompt)
     save_analysis_result(dataset_ids, question, result)
     redis_conn.xadd(f"stream:analysis_result:{job_id}", {"result": result})
-    redis_conn.xack(JOB_STREAM, GROUP_NAME, message_id)
+    redis_conn.xack(ANALYSIS_STREAM, GROUP_NAME, message_id)
 
 
 def run_worker():

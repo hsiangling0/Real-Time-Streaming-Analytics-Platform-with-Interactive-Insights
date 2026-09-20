@@ -5,10 +5,9 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi import UploadFile, File
-import logging, os, uuid
+import logging, os, uuid, json, io
 import asyncio
 import pandas as pd
-import json
 from app_backend.db.database import get_conn
 from app_backend.core.jwt import hash_password, verify_password, create_access_token
 from app_backend.models.schemas import EventSchema, AnalyzeRequest, RegisterRequest, LoginRequest
@@ -30,6 +29,7 @@ app.add_middleware(
 
 JOB_STREAM = "stream:jobs"
 BASE_STORAGE = os.getenv("BASE_STORAGE", "uploads")
+GCS_BUCKET = os.getenv("GCS_BUCKET")
 
 
 @app.get("/")
@@ -100,15 +100,25 @@ def login(req: LoginRequest):
 async def upload(file: UploadFile = File(...), user=Depends(get_current_user)):
     try:
         file_id = str(uuid.uuid4())
-        file_path = f"{BASE_STORAGE}/{file_id}.csv"
-        os.makedirs(BASE_STORAGE, exist_ok=True)
-        # save file
-        with open(file_path, "wb") as f:
-            while chunk := await file.read(1024 * 1024):
-                f.write(chunk)
-        # preview
-        df = pd.read_csv(file_path)
+        content = await file.read()
 
+        if GCS_BUCKET:
+            # --- GCP mode: write to GCS ---
+            from google.cloud import storage
+            client = storage.Client()
+            bucket = client.bucket(GCS_BUCKET)
+            blob_path = f"uploads/{file_id}.csv"
+            blob = bucket.blob(blob_path)
+            blob.upload_from_string(content, content_type="text/csv")
+            file_path = f"gs://{GCS_BUCKET}/{blob_path}"
+        else:
+            # --- Local mode: unchanged behavior ---
+            os.makedirs(BASE_STORAGE, exist_ok=True)
+            file_path = f"{BASE_STORAGE}/{file_id}.csv"
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+        df = pd.read_csv(io.BytesIO(content))
         preview = df.head(5).to_dict(orient="records")
         columns = list(df.columns)
         numeric_columns = df.select_dtypes(include="number").columns.tolist()
@@ -117,9 +127,8 @@ async def upload(file: UploadFile = File(...), user=Depends(get_current_user)):
             "file_path": file_path,
             "columns": columns,
             "numeric_columns": numeric_columns,
-            "preview": preview
+            "preview": preview,
         }
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

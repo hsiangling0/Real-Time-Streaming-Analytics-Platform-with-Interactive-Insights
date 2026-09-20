@@ -2,11 +2,9 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/home/sidebar";
 import Header from "@/components/home/header";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
-// localStorage.setItem(
-//   "token",
-//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfaWQiOiJ0ZXN0X29yZyJ9.SheepxG9aQfMtH4lQss1GXvKaKnMQu8VGHk7pJXzlLY",
-// );
+
 export default function Home() {
   const [datalist, setDataList] = useState([]);
   const [activeDatasets, setActiveDatasets] = useState(() => {
@@ -14,7 +12,7 @@ export default function Home() {
     return saved ? JSON.parse(saved) : [];
   });
   const fetchDatasets = () => {
-    fetch("http://localhost:8000/datalist", {
+    fetch(`${API_BASE_URL}/datalist`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
